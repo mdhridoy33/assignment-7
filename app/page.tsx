@@ -4,17 +4,16 @@ import ProductCard from './component/ProductCard';
 export default async function HomePage() {
   const products = await fetchProducts().catch(() => []);
 
-  // ১. আজ দাম বেড়েছে এমন পণ্য
   const risers = products.filter((p) => p.changePercent > 0);
 
-  // ২. আজ দাম কমেছে এমন পণ্য
+ 
   const fallers = products.filter((p) => p.changePercent < 0);
 
   const todayDateStr = 'মঙ্গলবার, ৬ অক্টোবর, ২০২৬';
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 space-y-10">
-      {/* হিরো ব্যানার */}
+      
       <section className="bg-emerald-50/60 rounded-3xl p-8 border border-emerald-100/50 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
         <div className="space-y-3 max-w-xl">
           <span className="inline-block px-3 py-1 bg-emerald-100/80 text-emerald-800 text-xs font-semibold rounded-full">
@@ -40,7 +39,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* সেকশন ১: আজ দাম বেড়েছে */}
       {risers.length > 0 && (
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -54,7 +52,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* সেকশন ২: আজ দাম কমেছে */}
       {fallers.length > 0 && (
         <section>
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -68,7 +65,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* সেকশন ৩: সব পণ্য */}
       <section id="all-products">
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">

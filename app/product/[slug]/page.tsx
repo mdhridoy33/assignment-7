@@ -7,6 +7,10 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+interface BazarPriceItem {
+  bazarName: string;
+  price: number;
+}
 
 async function ProductContent({ params }: PageProps) {
   const { slug } = await params;
@@ -37,7 +41,6 @@ async function ProductContent({ params }: PageProps) {
         </div>
       </div>
 
-      
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-xl border border-gray-100 text-center">
           <p className="text-xs text-gray-400">সর্বনিম্ন দাম</p>
@@ -52,24 +55,23 @@ async function ProductContent({ params }: PageProps) {
           </p>
         </div>
         <div className="bg-white p-4 rounded-xl border border-gray-100 text-center">
-          <p className="text-xs text-gray-400">গড় দাম</p>
+          <p className="text-xs text-gray-400">গড় দাম</p>
           <p className="text-base sm:text-lg font-bold text-gray-900 mt-1">
             {toBengaliNumerals(product.avgPrice || product.currentPrice)} টাকা
           </p>
         </div>
       </div>
 
-     
       <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
         <h2 className="text-base font-bold text-gray-900 mb-4">বাজারভিত্তিক আজকের দাম</h2>
         <div className="divide-y divide-gray-100 text-sm">
           {(
             product.bazarPrices || [
-              { bazarName: 'কারওয়ান বাজার', price: product.currentPrice },
+              { bazarName: 'কারওয়ান বাজার', price: product.currentPrice },
               { bazarName: 'নিউ মার্কেট', price: product.currentPrice + 2 },
               { bazarName: 'মিরপুর ১০ বাজার', price: product.currentPrice - 1 },
             ]
-          ).map((bazar, idx) => (
+          ).map((bazar: BazarPriceItem, idx: number) => (
             <div key={idx} className="py-3 flex justify-between items-center">
               <span className="text-gray-700 font-medium">{bazar.bazarName}</span>
               <span className="font-bold text-gray-900">{toBengaliNumerals(bazar.price)} টাকা</span>
@@ -80,7 +82,6 @@ async function ProductContent({ params }: PageProps) {
     </div>
   );
 }
-
 
 export default function ProductDetailPage({ params }: PageProps) {
   return (

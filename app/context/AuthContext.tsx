@@ -19,7 +19,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // useState-এর ভেতরেই সরাসরি localStorage চেক করা হচ্ছে (কোনো useEffect বা লিন্ট ওয়ার্নিং ছাড়াই)
+  
   const [user, setUser] = useState<User | null>(() => {
     if (typeof window === 'undefined') return null;
     const storedUser = localStorage.getItem('bazar_dor_user');

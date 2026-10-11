@@ -44,7 +44,7 @@ export default function Header({ categories = [], products = [] }: HeaderProps) 
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-xs w-full">
-      {/* ১. মূল নেভবার */}
+
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between bg-white">
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center p-1.5 shadow-xs shrink-0">
@@ -67,7 +67,6 @@ export default function Header({ categories = [], products = [] }: HeaderProps) 
           </div>
         </Link>
 
-        {/* ডানদিকের Auth / Profile Area */}
         <div className="flex items-center gap-3">
           {user ? (
             <Link
@@ -106,7 +105,6 @@ export default function Header({ categories = [], products = [] }: HeaderProps) 
         </div>
       </div>
 
-      {/* ২. ক্যাটাগরি পিলস বার */}
       <div className="border-t border-gray-100 bg-white">
         <div className="max-w-6xl mx-auto px-4 py-2 overflow-x-auto flex items-center justify-center gap-6 text-xs text-gray-700 whitespace-nowrap scrollbar-none">
           {displayCategories.map((cat) => {
@@ -130,7 +128,6 @@ export default function Header({ categories = [], products = [] }: HeaderProps) 
         </div>
       </div>
 
-      {/* ৩. ইনফিনিট হরিজন্টাল প্রাইজ টিকার বার */}
       {products.length > 0 && (
         <div className="border-t border-gray-100 bg-gray-50/80 py-2 overflow-hidden w-full relative">
           <div className="flex flex-row items-center whitespace-nowrap animate-marquee hover:pause gap-8">

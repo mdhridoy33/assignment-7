@@ -16,7 +16,6 @@ export default function ProfilePage() {
     }
   }, [user]);
 
-  // লোডিং শেষ না হওয়া পর্যন্ত স্পিনার দেখাবে, হোমে পাঠাবে না
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center text-gray-500">

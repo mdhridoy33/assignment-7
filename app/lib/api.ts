@@ -1,11 +1,8 @@
-import { Category, Product } from '@/types';
+import { Category, Product } from '../types';
 
 const BASE_URL = 'https://api.abcz.workers.dev/api/bazardor';
 const REVALIDATE_INTERVAL = 60;
 
-// ==========================================
-// Precise Data Normalizers for API Schema
-// ==========================================
 
 export function normalizeCategory(item: any, fallbackSlug = ''): Category {
   if (!item) {
@@ -106,10 +103,6 @@ export function normalizeProduct(item: any, fallbackCategory = 'general'): Produ
   };
 }
 
-// ==========================================
-// API Fetchers
-// ==========================================
-
 export async function fetchCategories(): Promise<Category[]> {
   try {
     const res = await fetch(`${BASE_URL}/categories`, { next: { revalidate: REVALIDATE_INTERVAL } });
@@ -178,7 +171,7 @@ export async function fetchProductsByCategory(categorySlug: string): Promise<Pro
       }
     }
   } catch {
-    // Local filter fallback
+  
   }
 
   const all = await fetchProducts();
@@ -193,7 +186,7 @@ export async function fetchProductById(id: string): Promise<Product | null> {
       if (item) return normalizeProduct(item);
     }
   } catch {
-    // Local lookup fallback
+
   }
 
   const all = await fetchProducts();
