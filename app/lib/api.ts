@@ -3,8 +3,7 @@ import { Category, Product } from '../types';
 const BASE_URL = 'https://api.abcz.workers.dev/api/bazardor';
 const REVALIDATE_INTERVAL = 60;
 
-
-export function normalizeCategory(item: any, fallbackSlug = ''): Category {
+export function normalizeCategory(item: Record<string, unknown>, fallbackSlug = ''): Category {
   if (!item) {
     return {
       id: fallbackSlug,
@@ -15,18 +14,18 @@ export function normalizeCategory(item: any, fallbackSlug = ''): Category {
     };
   }
 
-  const source = item.data || item;
+  const source = (item.data as Record<string, unknown>) || item;
 
   return {
     id: String(source.id || source.slug || source.category || fallbackSlug),
-    name: source.categoryNameBn || source.nameBn || source.name || fallbackSlug || 'ক্যাটাগরি',
+    name: String(source.categoryNameBn || source.nameBn || source.name || fallbackSlug || 'ক্যাটাগরি'),
     slug: String(source.slug || source.category || source.id || fallbackSlug),
-    emoji: source.categoryIcon || source.emoji || source.image || '🏷️',
+    emoji: String(source.categoryIcon || source.emoji || source.image || '🏷️'),
     productCount: Number(source.productCount ?? source.count ?? 0),
   };
 }
 
-export function normalizeProduct(item: any, fallbackCategory = 'general'): Product {
+export function normalizeProduct(item: Record<string, unknown>, fallbackCategory = 'general'): Product {
   if (!item) {
     return {
       id: '0',
@@ -43,31 +42,32 @@ export function normalizeProduct(item: any, fallbackCategory = 'general'): Produ
     };
   }
 
-  const source = item.data || item;
-
+  const source = (item.data as Record<string, unknown>) || item;
   const currentPrice = Number(source.today ?? source.currentPrice ?? source.price ?? 0);
   
   let minPrice = currentPrice;
   let maxPrice = currentPrice;
   let avgPrice = currentPrice;
 
-  if (Array.isArray(source.markets) && source.markets.length > 0) {
-    const mins = source.markets.map((m: any) => m.min).filter(Boolean);
-    const maxs = source.markets.map((m: any) => m.max).filter(Boolean);
+  const markets = source.markets as Array<Record<string, unknown>> | undefined;
+  if (Array.isArray(markets) && markets.length > 0) {
+    const mins = markets.map((m) => Number(m.min)).filter(Boolean);
+    const maxs = markets.map((m) => Number(m.max)).filter(Boolean);
     if (mins.length > 0) minPrice = Math.min(...mins);
     if (maxs.length > 0) maxPrice = Math.max(...maxs);
     avgPrice = Math.round((minPrice + maxPrice) / 2);
   }
 
   let changePercent = 0;
-  if (typeof source.change === 'object' && source.change !== null) {
-    const pct = Number(source.change.pct ?? 0);
-    changePercent = source.change.dir === 'down' ? -Math.abs(pct) : Math.abs(pct);
+  const changeObj = source.change as { pct?: number; dir?: string } | undefined;
+  if (typeof changeObj === 'object' && changeObj !== null) {
+    const pct = Number(changeObj.pct ?? 0);
+    changePercent = changeObj.dir === 'down' ? -Math.abs(pct) : Math.abs(pct);
   } else {
     changePercent = Number(source.changePercent ?? source.change ?? 0);
   }
 
-  const rawUnit = source.unit || 'kg';
+  const rawUnit = String(source.unit || 'kg');
   const formattedUnit = rawUnit.toLowerCase().includes('kg')
     ? 'প্রতি কেজি'
     : rawUnit.toLowerCase().includes('litre') || rawUnit.toLowerCase().includes('liter')
@@ -78,10 +78,10 @@ export function normalizeProduct(item: any, fallbackCategory = 'general'): Produ
     ? 'প্রতি পিস'
     : `প্রতি ${rawUnit}`;
 
-  const bazarPrices = Array.isArray(source.markets)
-    ? source.markets.map((m: any) => ({
-        bazarName: `${m.market} (${m.division})`,
-        price: Math.round((m.min + m.max) / 2),
+  const bazarPrices = Array.isArray(markets)
+    ? markets.map((m) => ({
+        bazarName: `${String(m.market || 'বাজার')} (${String(m.division || '')})`,
+        price: Math.round((Number(m.min) + Number(m.max)) / 2),
       }))
     : [
         { bazarName: 'কারওয়ান বাজার', price: currentPrice },
@@ -90,7 +90,7 @@ export function normalizeProduct(item: any, fallbackCategory = 'general'): Produ
 
   return {
     id: String(source.id || source.slug || ''),
-    name: source.nameBn || source.name || source.title || 'পণ্য',
+    name: String(source.nameBn || source.name || source.title || 'পণ্য'),
     category: String(source.category || fallbackCategory),
     currentPrice,
     minPrice,
@@ -98,10 +98,14 @@ export function normalizeProduct(item: any, fallbackCategory = 'general'): Produ
     avgPrice,
     changePercent,
     unit: formattedUnit,
-    emoji: source.image || source.categoryIcon || '🍚',
+    emoji: String(source.image || source.categoryIcon || '🍚'),
     bazarPrices,
   };
 }
+
+// ==========================================
+// API Fetchers
+// ==========================================
 
 export async function fetchCategories(): Promise<Category[]> {
   try {
@@ -118,7 +122,6 @@ export async function fetchCategories(): Promise<Category[]> {
   return [];
 }
 
-// 🟢 EXPORT THIS FUNCTION EXPLICITLY:
 export async function fetchCategoryBySlug(slug: string): Promise<Category | null> {
   try {
     const res = await fetch(`${BASE_URL}/categories/${slug}`, {
@@ -133,15 +136,16 @@ export async function fetchCategoryBySlug(slug: string): Promise<Category | null
   }
 
   const categories = await fetchCategories();
-  return (
-    categories.find((c) => c.slug === slug || c.id === slug) || {
-      id: slug,
-      name: slug,
-      slug: slug,
-      emoji: '🏷️',
-      productCount: 0,
-    }
-  );
+  const found = categories.find((c) => c.slug === slug || c.id === slug);
+  if (found) return found;
+
+  return {
+    id: slug,
+    name: slug,
+    slug: slug,
+    emoji: '🏷️',
+    productCount: 0,
+  };
 }
 
 export async function fetchProducts(): Promise<Product[]> {
@@ -171,7 +175,7 @@ export async function fetchProductsByCategory(categorySlug: string): Promise<Pro
       }
     }
   } catch {
-  
+    // Local filter fallback
   }
 
   const all = await fetchProducts();
@@ -186,9 +190,9 @@ export async function fetchProductById(id: string): Promise<Product | null> {
       if (item) return normalizeProduct(item);
     }
   } catch {
-
+    // Local lookup fallback
   }
 
   const all = await fetchProducts();
-  return all.find((p) => String(p.id) === String(id) || (p as any).slug === id) || null;
+  return all.find((p) => String(p.id) === String(id) || (p as unknown as Record<string, unknown>).slug === id) || null;
 }

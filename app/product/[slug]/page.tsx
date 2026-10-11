@@ -22,7 +22,6 @@ async function ProductContent({ params }: PageProps) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-    
       <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
         <div className="flex items-center gap-4">
           <span className="text-5xl bg-gray-50 p-3 rounded-xl">{product.emoji}</span>
